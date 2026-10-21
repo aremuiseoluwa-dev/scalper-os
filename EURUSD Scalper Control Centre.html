@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>URBX Scalper — Control Centre</title>
+<style>
+:root {
+  color-scheme: light dark;
+  --site-primary: #16D98B;
+  --site-secondary: #17251F;
+  --site-background: #080D0B;
+  --site-on-primary: #04150D;
+  --site-on-secondary: #F2FFF8;
+  --site-on-background: #F1F6F3;
+  --site-font-body: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --site-font-heading: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --site-heading-scale: 1;
+  --site-spacing-scale: 1;
+  --site-radius-scale: 1;
+  --site-decoration-opacity: 1;
+  --surface: light-dark(#FFFFFF, #101713);
+  --surface-2: light-dark(#F3F7F5, #17211B);
+  --text: light-dark(#101813, #F1F6F3);
+  --muted: light-dark(#65736B, #9AA9A0);
+  --line: light-dark(#DDE7E0, #29362E);
+  --green: #16D98B;
+  --red: #FF6575;
+  --amber: #EAB85B;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--site-background); color: var(--site-on-background); font-family: var(--site-font-body); }
+button, input, select { font: inherit; }
+#app { min-height: 100vh; background-color: var(--site-background); color: var(--site-on-background); border-radius: 0; }
+.topbar { display:flex; justify-content:space-between; align-items:center; padding: calc(18px * var(--site-spacing-scale)) max(18px, calc((100vw - 1100px)/2)); border-bottom:1px solid var(--line); gap:16px; }
+.brand { display:flex; align-items:center; gap:10px; font-weight:850; letter-spacing:.04em; }
+.logo { width:38px;height:38px;border-radius:12px;background:var(--site-primary);color:var(--site-on-primary);display:grid;place-items:center;font-weight:950; }
+.brand small { display:block; color:var(--muted); font-size:10px; letter-spacing:.17em; margin-top:2px; }
+.pill { border:1px solid var(--line); border-radius:99px; padding:8px 12px; font-size:12px; color:var(--muted); display:flex; align-items:center; gap:7px; }
+.dot { width:7px;height:7px;border-radius:50%;background:var(--amber); }
+main { max-width:1100px; margin:auto; padding:30px 18px 60px; }
+.eyebrow { font-size:11px; letter-spacing:.18em; color:var(--green); font-weight:800; text-transform:uppercase; }
+h1 { font-size:calc(32px * var(--site-heading-scale)); line-height:1.1; margin:10px 0 8px; letter-spacing:-.04em; }
+.subtitle { color:var(--muted); margin:0; line-height:1.6; max-width:620px; font-size:14px; }
+.notice { display:flex; gap:12px; padding:14px 16px; border:1px solid #80672D; background:light-dark(#FFF8E8,#2B2414); color:light-dark(#6A4B0C,#F6D995); border-radius:calc(14px * var(--site-radius-scale)); margin:22px 0; font-size:13px; line-height:1.5; }
+.notice strong { display:block; margin-bottom:3px; }
+.roadmap { margin:18px 0 24px; }
+.roadmap-head { display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px; }
+.roadmap-grid { display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px; }
+.roadmap-step { border:1px solid var(--line);border-radius:14px;background:var(--surface);padding:16px;min-width:0; }
+.step-number { width:28px;height:28px;border-radius:9px;background:var(--site-secondary);color:var(--green);display:grid;place-items:center;font-weight:900;font-size:12px;margin-bottom:12px; }
+.roadmap-step h3 { font-size:14px;margin:0 0 7px; }
+.roadmap-step p { font-size:12px;line-height:1.6;color:var(--muted);margin:0; }
+.step-state { display:inline-block;margin-top:12px;font-size:10px;letter-spacing:.08em;font-weight:850;border:1px solid var(--line);border-radius:99px;padding:5px 8px;color:var(--muted); }
+.roadmap-note { margin-top:12px;font-size:12px;line-height:1.6;color:var(--muted); }
+.grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px; margin:18px 0; }
+.card { background:var(--surface); color:var(--text); border:1px solid var(--line); border-radius:calc(17px * var(--site-radius-scale)); padding:18px; min-width:0; }
+.metric-label { font-size:12px; color:var(--muted); }
+.metric-value { font-size:clamp(20px,3vw,28px); font-weight:800; margin:12px 0 5px; letter-spacing:-.04em; overflow-wrap:anywhere; }
+.metric-foot { font-size:11px; color:var(--muted); }
+.section-head { display:flex;justify-content:space-between;align-items:center;gap:12px;margin:28px 0 12px; }
+h2 { font-size:calc(17px * var(--site-heading-scale)); margin:0; letter-spacing:-.02em; }
+.small { color:var(--muted); font-size:12px; }
+.control-layout { display:grid; grid-template-columns:1.15fr .85fr; gap:14px; }
+.status-line { display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:18px; }
+.status-tag { display:inline-flex;align-items:center;gap:7px;font-size:11px;font-weight:800;padding:7px 10px;border-radius:99px;background:var(--surface-2);color:var(--muted); }
+.status-tag .dot { background:var(--amber); }
+.status-tag.running { color:#087C4D; background:light-dark(#E2FFF1,#123C2B); }
+.status-tag.running .dot { background:var(--green); }
+.actions { display:grid;grid-template-columns:1fr 1fr;gap:10px; }
+.btn { border:0;border-radius:12px;padding:15px 12px;font-weight:850;cursor:pointer;transition:transform .12s, opacity .12s; }
+.btn:active { transform:scale(.98); }
+.btn:disabled { opacity:.4;cursor:not-allowed; }
+.start { background:var(--green);color:#04150D; }
+.stop { background:var(--surface-2);color:var(--text);border:1px solid var(--line); }
+.danger { background:light-dark(#FFE8EA,#401C22);color:var(--red);border:1px solid #71313A; }
+.outline { background:transparent;border:1px solid var(--line);color:var(--text); }
+.full { width:100%; margin-top:10px; }
+.field { display:flex;flex-direction:column;gap:7px;margin-bottom:14px; }
+.field label { font-size:12px;color:var(--muted); }
+.field input,.field select { width:100%;border:1px solid var(--line);border-radius:10px;background:var(--surface-2);color:var(--text);padding:11px 12px;outline-offset:2px; }
+.fields-grid { display:grid;grid-template-columns:1fr 1fr;gap:0 12px; }
+.trade-empty { text-align:center;padding:26px 12px;color:var(--muted);border:1px dashed var(--line);border-radius:12px;font-size:13px;line-height:1.6; }
+.table-wrap { overflow:auto; }
+table { width:100%;border-collapse:collapse;font-size:12px; }
+th,td { text-align:left;padding:12px 10px;border-bottom:1px solid var(--line);white-space:nowrap; }
+th { color:var(--muted);font-weight:600; }
+.empty-row { text-align:center;color:var(--muted);padding:22px; }
+.log { display:flex;flex-direction:column;gap:10px; }
+.log-item { display:flex;gap:10px;align-items:flex-start;font-size:12px;line-height:1.5; }
+.log-time { color:var(--muted);font-variant-numeric:tabular-nums;min-width:68px; }
+.log-mark { width:7px;height:7px;border-radius:50%;background:var(--green);margin-top:5px;flex:none; }
+footer { color:var(--muted);font-size:11px;line-height:1.7;text-align:center;margin:32px auto 0;max-width:720px; }
+.toast { position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:var(--text);color:var(--site-background);padding:12px 16px;border-radius:12px;font-size:13px;box-shadow:0 8px 30px #0003;max-width:calc(100vw - 32px);z-index:10; }
+@media(max-width:760px){ .grid{grid-template-columns:repeat(2,minmax(0,1fr));}.control-layout{grid-template-columns:1fr;} main{padding-top:24px;} h1{font-size:29px;} .topbar{padding:14px 18px;} }
+@media(max-width:760px){.roadmap-grid{grid-template-columns:1fr;}.roadmap-head{align-items:flex-start;flex-direction:column;}}
+@media(max-width:390px){.card{padding:14px;}.actions{grid-template-columns:1fr 1fr;}.fields-grid{grid-template-columns:1fr;} }
+</style>
+</head>
+<body>
+<div id="app">
+  <header class="topbar">
+    <div class="brand"><div class="logo">E</div><div>SCALPER OS<small>EURUSD CONTROL CENTRE</small></div></div>
+    <div class="pill"><span class="dot"></span><span id="connectionText">DEMO PREVIEW</span></div>
+  </header>
+  <main>
+    <div class="eyebrow">Trading workspace / 01</div>
+    <h1>Your bot. Your call.</h1>
+    <p class="subtitle">A phone-first control panel concept for an MT5 EURUSD scalper. Configure your plan, test the controls, and see the kind of live status the connected bot will report.</p>
+    <div class="notice"><span>⚠</span><div><strong>Preview mode — not connected to MT5</strong>These controls only change this page's demo state. No broker account is linked and no real trades can be placed. A secure backend and VPS-hosted EA are required for live control.</div></div>
+    <section class="roadmap" aria-labelledby="setupTitle">
+      <div class="roadmap-head"><div><div class="eyebrow">Next practical step</div><h2 id="setupTitle" style="margin-top:7px">Connection setup</h2></div><span class="pill"><span class="dot"></span><span>NOT CONNECTED</span></span></div>
+      <div class="roadmap-grid">
+        <article class="roadmap-step"><div class="step-number">01</div><h3>Publish the dashboard</h3><p>Put this static page on a free hosting URL so you can open the same interface on your phone and laptop.</p><span class="step-state">READY TO PREPARE</span></article>
+        <article class="roadmap-step"><div class="step-number">02</div><h3>Run MT5 on your computer</h3><p>The simplest personal setup is an Expert Advisor inside desktop MT5. Your computer must stay on and connected while you test; the phone app alone cannot run the EA.</p><span class="step-state">NOT SET UP</span></article>
+        <article class="roadmap-step"><div class="step-number">03</div><h3>Add a secure bridge</h3><p>A small backend will relay status and Start/Stop commands between this page and the EA. Pair it with a private token, not your broker password.</p><span class="step-state">NOT BUILT</span></article>
+      </div>
+      <p class="roadmap-note"><strong>Safety rule:</strong> keep the connector demo-only until status updates, command authentication, and risk limits have been tested. Publishing this page alone does not enable trading.</p>
+    </section>
+    <div class="grid">
+      <div class="card"><div class="metric-label">Account balance</div><div class="metric-value" id="balance">$1,000.00</div><div class="metric-foot">Illustrative demo value</div></div>
+      <div class="card"><div class="metric-label">Equity</div><div class="metric-value" id="equity">$1,000.00</div><div class="metric-foot">Updates when demo trade closes</div></div>
+      <div class="card"><div class="metric-label">Today's P/L</div><div class="metric-value" id="pnl">$0.00</div><div class="metric-foot">Simulated only</div></div>
+      <div class="card"><div class="metric-label">Current spread</div><div class="metric-value">—</div><div class="metric-foot">Requires broker connection</div></div>
+    </div>
+    <div class="control-layout">
+      <section class="card">
+        <div class="status-line"><div><div class="metric-label">BOT CONTROL</div><h2 style="margin-top:7px">EURUSD Scalper</h2></div><div class="status-tag" id="statusTag"><span class="dot"></span><span id="statusText">STOPPED</span></div></div>
+        <p class="small" style="line-height:1.6;margin:0 0 18px">Start allows the EA to look for entries. Stop should prevent new entries while leaving existing stop-loss and take-profit protection in place.</p>
+        <div class="actions"><button class="btn start" id="startBtn">▶ &nbsp; START</button><button class="btn stop" id="stopBtn">Ⅱ &nbsp; STOP</button></div>
+        <button class="btn danger full" id="closeBtn">Close all open trades</button>
+        <p class="small" style="line-height:1.6;margin:12px 0 0">Emergency close is a separate action and should require confirmation in the live version.</p>
+      </section>
+      <section class="card">
+        <div class="section-head" style="margin:0 0 16px"><h2>Strategy settings</h2><span class="small">Demo inputs</span></div>
+        <div class="fields-grid">
+          <div class="field"><label for="risk">Risk per trade (%)</label><input id="risk" type="number" min="0.1" max="1" step="0.1" value="0.5"></div>
+          <div class="field"><label for="dailyLoss">Daily loss limit (%)</label><input id="dailyLoss" type="number" min="0.5" max="5" step="0.5" value="2"></div>
+          <div class="field"><label for="spread">Max spread (pips)</label><input id="spread" type="number" min="0.2" max="3" step="0.1" value="1"></div>
+          <div class="field"><label for="rr">Reward:risk</label><select id="rr"><option value="1">1:1</option><option value="1.5" selected>1:1.5</option><option value="2">1:2</option></select></div>
+          <div class="field"><label for="session">Trading session</label><select id="session"><option>London</option><option selected>London + New York overlap</option><option>Both sessions</option></select></div>
+          <div class="field"><label for="maxTrades">Max trades / day</label><input id="maxTrades" type="number" min="1" max="20" step="1" value="5"></div>
+        </div>
+        <button class="btn outline full" id="saveBtn">Save demo settings</button>
+        <p class="small" id="settingsHint" style="margin:10px 0 0;line-height:1.5">Settings are local to this preview; they are not sent to an EA.</p>
+      </section>
+    </div>
+    <div class="section-head"><h2>Open positions</h2><span class="small" id="tradeCount">0 positions</span></div>
+    <section class="card table-wrap">
+      <table><thead><tr><th>SYMBOL</th><th>TYPE</th><th>VOLUME</th><th>ENTRY</th><th>SL / TP</th><th>STATUS</th></tr></thead><tbody id="tradesBody"><tr><td colspan="6" class="empty-row">No live data. MT5 connection required.</td></tr></tbody></table>
+    </section>
+    <div class="section-head"><h2>Activity</h2><span class="small">This session</span></div>
+    <section class="card"><div class="log" id="activity"><div class="log-item"><span class="log-time">Just now</span><span class="log-mark"></span><span>Dashboard opened in preview mode. Broker connection is not configured.</span></div></div></section>
+    <footer>Trading involves risk and losses can exceed expectations. This page is a non-trading prototype, not financial advice or a profitability guarantee. Before connecting a live account, test the EA on demo, validate order sizing and broker symbol settings, and implement server-side authentication, command signing, audit logs and hard risk limits.</footer>
+  </main>
+</div>
+<div id="toast" class="toast" hidden></div>
+<script>
+(() => {
+  let running = false;
+  let balance = 1000;
+  let pnl = 0;
+  let trades = [];
+  const $ = id => document.getElementById(id);
+  const time = () => new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+  function toast(message) {
+    const t = $('toast'); t.textContent = message; t.hidden = false;
+    clearTimeout(toast.timer); toast.timer = setTimeout(() => t.hidden = true, 2600);
+  }
+  function log(message, color) {
+    const row = document.createElement('div'); row.className = 'log-item';
+    const tm = document.createElement('span'); tm.className = 'log-time'; tm.textContent = time();
+    const dot = document.createElement('span'); dot.className = 'log-mark'; if(color) dot.style.background = color;
+    const msg = document.createElement('span'); msg.textContent = message;
+    row.append(tm,dot,msg); $('activity').prepend(row);
+  }
+  function render() {
+    $('statusText').textContent = running ? 'RUNNING · DEMO' : 'STOPPED';
+    $('statusTag').classList.toggle('running', running);
+    $('startBtn').disabled = running;
+    $('stopBtn').disabled = !running;
+    $('balance').textContent = '$' + balance.toFixed(2);
+    $('equity').textContent = '$' + balance.toFixed(2);
+    $('pnl').textContent = (pnl < 0 ? '-$' : '$') + Math.abs(pnl).toFixed(2);
+    $('pnl').style.color = pnl > 0 ? 'var(--green)' : pnl < 0 ? 'var(--red)' : 'var(--text)';
+    $('tradeCount').textContent = trades.length + (trades.length === 1 ? ' position' : ' positions');
+    const body = $('tradesBody'); body.replaceChildren();
+    if (!trades.length) {
+      const tr = document.createElement('tr'), td = document.createElement('td');
+      td.colSpan = 6; td.className = 'empty-row'; td.textContent = 'No positions in this preview.';
+      tr.append(td); body.append(tr);
+    } else trades.forEach(t => {
+      const tr = document.createElement('tr');
+      [t.symbol,t.type,t.volume,t.entry,t.sl + ' / ' + t.tp,'DEMO'].forEach(v => { const td=document.createElement('td');td.textContent=v;tr.append(td); });
+      body.append(tr);
+    });
+  }
+  $('startBtn').addEventListener('click', () => {
+    running = true; render(); log('Demo bot started. No orders are being sent to a broker.'); toast('Demo state: bot started');
+  });
+  $('stopBtn').addEventListener('click', () => {
+    running = false; render(); log('Demo bot stopped. Existing demo positions remain listed.'); toast('Demo state: bot stopped');
+  });
+  $('closeBtn').addEventListener('click', () => {
+    if (!trades.length) { toast('No demo positions to close'); log('Close-all requested; no demo positions were open.'); return; }
+    if (!confirm('Close all simulated positions? This does not affect any broker account.')) return;
+    trades = []; render(); log('All simulated positions cleared. No real trades were affected.', 'var(--red)'); toast('Demo positions cleared');
+  });
+  $('saveBtn').addEventListener('click', () => {
+    const risk = Number($('risk').value), loss = Number($('dailyLoss').value), spread = Number($('spread').value), max = Number($('maxTrades').value);
+    if (!(risk >= .1 && risk <= 1) || !(loss >= .5 && loss <= 5) || !(spread >= .2 && spread <= 3) || !(max >= 1 && max <= 20)) {
+      toast('Check the settings ranges and try again'); return;
+    }
+    log('Demo settings saved: risk ' + risk + '%, daily limit ' + loss + '%, spread cap ' + spread + ' pips.');
+    $('settingsHint').textContent = 'Saved for this page session only. A live version must validate and store settings on its server.';
+    toast('Demo settings saved');
+  });
+  render();
+})();
+</script>
+</body>
+</html>
